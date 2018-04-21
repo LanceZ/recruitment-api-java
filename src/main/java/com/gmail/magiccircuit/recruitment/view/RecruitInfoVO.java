@@ -1,5 +1,7 @@
 package com.gmail.magiccircuit.recruitment.view;
 
+import org.springframework.data.domain.Page;
+
 import com.gmail.magiccircuit.recruitment.model.RecruitInfo;
 import com.gmail.magiccircuit.recruitment.model.User;
 
@@ -14,6 +16,16 @@ public class RecruitInfoVO extends BaseVO {
 
 	public void setRecruitInfo(RecruitInfo recruitInfo) {
 		this.recruitInfo = recruitInfo;
+	}
+
+	Page<RecruitInfo> recruitInfoList;
+
+	public Page<RecruitInfo> getRecruitInfoList() {
+		return recruitInfoList;
+	}
+
+	public void setRecruitInfoList(Page<RecruitInfo> recruitInfoList) {
+		this.recruitInfoList = recruitInfoList;
 	}
 
 	User user;

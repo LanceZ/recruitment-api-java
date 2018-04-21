@@ -62,7 +62,7 @@ public class RecruitInfoController {
 	}
 
 	@RequestMapping(path = "/api/recruitinfo", method = RequestMethod.GET)
-	public IndexVO getRecruitInfoList(@RequestParam(value = "page", defaultValue = "1") int page,
+	public IndexVO getRecruitInfoList(@RequestParam(value = "page", defaultValue = "0") int page,
 			@RequestParam(value = "pageSize", defaultValue = "30") int pageSize) {
 		if (pageSize > 50) {
 			pageSize = 50;
@@ -110,6 +110,32 @@ public class RecruitInfoController {
 		recruitInfo = recruitInfoRepository.save(recruitInfo);
 		vo.setRecruitInfo(recruitInfo);
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
+
+		return vo;
+	}
+
+	@RequestMapping(path = "/api/user/recruitinfo", method = RequestMethod.GET)
+	public RecruitInfoVO getRecruitInfoListByUser(@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "pageSize", defaultValue = "30") int pageSize, HttpSession session) {
+		if (pageSize > 50) {
+			pageSize = 50;
+		}
+
+		if (session == null || session.getAttribute("user") == null) {
+			RecruitInfoVO vo = new RecruitInfoVO();
+			vo.setResCode(BaseVO.RES_CODE_ERR_SESSION_NULL);
+			vo.setResMsg("can not get user session");
+			return vo;
+		}
+
+		User user = (User) session.getAttribute("user");
+
+		Pageable p = PageRequest.of(page, pageSize, Sort.Direction.DESC, "createTime");
+		Page<RecruitInfo> list = recruitInfoRepository.findByUserId(user.getId(), p);
+
+		RecruitInfoVO vo = new RecruitInfoVO();
+		vo.setResCode(BaseVO.RES_CODE_SUCC);
+		vo.setRecruitInfoList(list);
 
 		return vo;
 	}

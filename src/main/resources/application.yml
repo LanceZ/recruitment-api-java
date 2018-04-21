@@ -21,8 +21,8 @@ spring:
 
 wechat:
   miniapp:
-    appid: 
-    secret: 
+    appid: wxf0d08bdd4b2e18c5
+    secret: 7b82c3222e2dee3e4f4a6614f7a6e6bc
     token: 
     aesKey: 
     msgDataFormat: JSON

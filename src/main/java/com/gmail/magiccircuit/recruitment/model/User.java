@@ -12,9 +12,9 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicUpdate;
 
-@DynamicUpdate(true)
 @Entity(name = "t_user")
 @Table(indexes = { @Index(name = "idx_user_open_id", columnList = "openId") })
+@DynamicUpdate
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 

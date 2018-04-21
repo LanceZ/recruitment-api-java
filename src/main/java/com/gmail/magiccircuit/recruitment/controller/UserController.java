@@ -1,13 +1,17 @@
 package com.gmail.magiccircuit.recruitment.controller;
 
+import java.util.Optional;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gmail.magiccircuit.recruitment.common.BeanUtil;
 import com.gmail.magiccircuit.recruitment.dao.UserRepository;
 import com.gmail.magiccircuit.recruitment.model.User;
 import com.gmail.magiccircuit.recruitment.view.BaseVO;
@@ -27,9 +31,12 @@ public class UserController {
 			return vo;
 		}
 		User user = (User) session.getAttribute("user");
-		user = userRepository.getOne(user.getId());
+		Optional<User> u = userRepository.findById(user.getId());
 		// 隐藏openId
-		user.setOpenId("");
+		user = u.orElse(null);
+		if (user != null) {
+			user.setOpenId("");
+		}
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
 		vo.setUser(user);
 
@@ -37,7 +44,7 @@ public class UserController {
 	}
 
 	@RequestMapping(path = "/api/user", method = RequestMethod.PUT)
-	public UserVO addUser(@RequestBody User user, HttpSession session) {
+	public UserVO saveUser(@RequestBody User user, HttpSession session) {
 		UserVO vo = new UserVO();
 		if (session == null || session.getAttribute("user") == null) {
 			vo.setResCode(BaseVO.RES_CODE_ERR_SESSION_NULL);
@@ -45,9 +52,10 @@ public class UserController {
 			return vo;
 		}
 		User login = (User) session.getAttribute("user");
-		user.setId(login.getId());
-		user.setOpenId(login.getOpenId());
-		user = userRepository.save(user);
+		
+		User old = userRepository.getOne(login.getId());
+		BeanUtil.copyPropertiesIgnoreNull(user, old);
+		user = userRepository.saveAndFlush(old);
 
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
 		

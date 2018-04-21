@@ -12,6 +12,8 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -33,12 +35,16 @@ public class AcceptInfo implements Serializable {
 	private Long userId;
 
 	@Column(nullable = true, unique = false, length = 200)
+	@NotBlank(message = "姓名不能为空")
 	private String userName;
 
 	@Column(nullable = true, unique = false, length = 20)
+	@NotBlank(message = "手机不能为空")
 	private String userMobile;
 
 	@Column(nullable = true, unique = false, length = 50)
+	@NotBlank(message = "邮箱不能为空")
+	@Email
 	private String userEmail;
 
 	@Column(nullable = true, unique = false, length = 500)
