@@ -9,6 +9,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -27,9 +29,6 @@ public class AcceptInfo implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@Column(nullable = false, unique = false)
-	private Long recruitInfoId;
 
 	@Column(nullable = false, unique = false)
 	private Long userId;
@@ -54,20 +53,17 @@ public class AcceptInfo implements Serializable {
 	@Column(nullable = true, unique = false)
 	private Date createTime;
 
+	// 映射多对一的关联关系
+	@JoinColumn(name = "recruitInfoId", nullable = false, unique = false)
+	@ManyToOne
+	private RecruitInfo recruitInfo;
+
 	public Long getId() {
 		return id;
 	}
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public Long getRecruitInfoId() {
-		return recruitInfoId;
-	}
-
-	public void setRecruitInfoId(Long recruitInfoId) {
-		this.recruitInfoId = recruitInfoId;
 	}
 
 	public Long getUserId() {
@@ -116,5 +112,13 @@ public class AcceptInfo implements Serializable {
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
+	}
+
+	public RecruitInfo getRecruitInfo() {
+		return recruitInfo;
+	}
+
+	public void setRecruitInfo(RecruitInfo recruitInfo) {
+		this.recruitInfo = recruitInfo;
 	}
 }
