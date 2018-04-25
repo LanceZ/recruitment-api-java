@@ -18,16 +18,63 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gmail.magiccircuit.recruitment.dao.AcceptInfoRepository;
 import com.gmail.magiccircuit.recruitment.model.AcceptInfo;
+import com.gmail.magiccircuit.recruitment.model.RecruitInfo;
 import com.gmail.magiccircuit.recruitment.model.User;
+import com.gmail.magiccircuit.recruitment.service.AcceptInfoService;
+import com.gmail.magiccircuit.recruitment.service.RecruitInfoService;
 import com.gmail.magiccircuit.recruitment.view.AcceptInfoVO;
 import com.gmail.magiccircuit.recruitment.view.BaseVO;
 
 @RestController
 public class AcceptInfoController {
 	@Resource
-	AcceptInfoRepository acceptInfoRepository;
+	AcceptInfoService acceptInfoService;
+
+	@Resource
+	RecruitInfoService recruitInfoService;
+
+	@RequestMapping(path = "/api/acceptinfo", method = RequestMethod.GET)
+	public AcceptInfoVO getAcceptInfoListByRecuritInfoId(@RequestParam Long recruitInfoId,
+			@RequestParam(value = "page", defaultValue = "0") int page,
+			@RequestParam(value = "pageSize", defaultValue = "30") int pageSize, HttpSession session) {
+		if (recruitInfoId == null) {
+			AcceptInfoVO vo = new AcceptInfoVO();
+			vo.setResCode(BaseVO.RES_CODE_ERR_CHECK_PARAMS_FAILED);
+			vo.setResMsg("params[recruitInfoId] is null");
+			return vo;
+		}
+
+		if (pageSize > 50) {
+			pageSize = 50;
+		}
+
+		if (session == null || session.getAttribute("user") == null) {
+			AcceptInfoVO vo = new AcceptInfoVO();
+			vo.setResCode(BaseVO.RES_CODE_ERR_SESSION_NULL);
+			vo.setResMsg("can not get user session");
+			return vo;
+		}
+
+		User user = (User) session.getAttribute("user");
+
+		RecruitInfo ri = recruitInfoService.findById(recruitInfoId);
+		if (ri == null || ri.getUserId() != user.getId()) {
+			AcceptInfoVO vo = new AcceptInfoVO();
+			vo.setResCode(BaseVO.RES_CODE_ERR_FORBIDDEN);
+			vo.setResMsg("Forbidden");
+			return vo;
+		}
+
+		Pageable p = PageRequest.of(page, pageSize, Sort.Direction.DESC, "createTime");
+		Page<AcceptInfo> list = acceptInfoService.findByUserId(user.getId(), p);
+
+		AcceptInfoVO vo = new AcceptInfoVO();
+		vo.setResCode(BaseVO.RES_CODE_SUCC);
+		vo.setAcceptInfoList(list);
+
+		return vo;
+	}
 
 	@RequestMapping(path = "/api/user/acceptinfo", method = RequestMethod.GET)
 	public AcceptInfoVO getAcceptInfoListByUser(@RequestParam(value = "page", defaultValue = "0") int page,
@@ -46,7 +93,7 @@ public class AcceptInfoController {
 		User user = (User) session.getAttribute("user");
 
 		Pageable p = PageRequest.of(page, pageSize, Sort.Direction.DESC, "createTime");
-		Page<AcceptInfo> list = acceptInfoRepository.findByUserId(user.getId(), p);
+		Page<AcceptInfo> list = acceptInfoService.findByUserId(user.getId(), p);
 
 		AcceptInfoVO vo = new AcceptInfoVO();
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
@@ -80,7 +127,7 @@ public class AcceptInfoController {
 		acceptInfo.setUserId(user.getId());
 		acceptInfo.setCreateTime(new Date());
 
-		acceptInfo = acceptInfoRepository.save(acceptInfo);
+		acceptInfo = acceptInfoService.save(acceptInfo);
 		vo.setAcceptInfo(acceptInfo);
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
 

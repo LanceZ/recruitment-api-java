@@ -1,7 +1,6 @@
 package com.gmail.magiccircuit.recruitment.controller;
 
 import java.util.Date;
-import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -20,11 +19,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gmail.magiccircuit.recruitment.dao.AcceptInfoRepository;
-import com.gmail.magiccircuit.recruitment.dao.RecruitInfoRepository;
-import com.gmail.magiccircuit.recruitment.dao.UserRepository;
 import com.gmail.magiccircuit.recruitment.model.RecruitInfo;
 import com.gmail.magiccircuit.recruitment.model.User;
+import com.gmail.magiccircuit.recruitment.service.AcceptInfoService;
+import com.gmail.magiccircuit.recruitment.service.RecruitInfoService;
 import com.gmail.magiccircuit.recruitment.view.BaseVO;
 import com.gmail.magiccircuit.recruitment.view.IndexVO;
 import com.gmail.magiccircuit.recruitment.view.RecruitInfoVO;
@@ -32,26 +30,22 @@ import com.gmail.magiccircuit.recruitment.view.RecruitInfoVO;
 @RestController
 public class RecruitInfoController {
 	@Resource
-	RecruitInfoRepository recruitInfoRepository;
+	RecruitInfoService recruitInfoService;
 
 	@Resource
-	AcceptInfoRepository acceptInfoRepository;
-
-	@Resource
-	UserRepository userRepository;
+	AcceptInfoService acceptInfoService;
 
 	@RequestMapping(path = "/api/recruitinfo/{id}", method = RequestMethod.GET)
 	public RecruitInfoVO getRecruitInfo(@PathVariable Long id, HttpSession session) {
-		Optional<RecruitInfo> ri = recruitInfoRepository.findById(id);
+		RecruitInfo ri = recruitInfoService.findById(id);
 		RecruitInfoVO vo = new RecruitInfoVO();
-		RecruitInfo i = ri.orElse(null);
-		if (i == null) {
+		if (ri == null) {
 			vo.setResCode(BaseVO.RES_CODE_ERR_DATA_NOT_FOUND);
 			vo.setResMsg("没有找到招聘信息");
 			return vo;
 		} else {
 			vo.setResCode(BaseVO.RES_CODE_SUCC);
-			vo.setRecruitInfo(i);
+			vo.setRecruitInfo(ri);
 			User u = (User) session.getAttribute("user");
 			if (u != null) {
 				u.setOpenId("");
@@ -69,9 +63,9 @@ public class RecruitInfoController {
 		}
 
 		Pageable p = PageRequest.of(page, pageSize, Sort.Direction.DESC, "createTime");
-		Page<RecruitInfo> list = recruitInfoRepository.findAll(p);
+		Page<RecruitInfo> list = recruitInfoService.findAll(p);
 
-		long acceptCount = acceptInfoRepository.count();
+		long acceptCount = acceptInfoService.count();
 
 		IndexVO vo = new IndexVO();
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
@@ -107,7 +101,7 @@ public class RecruitInfoController {
 		recruitInfo.setStatus(RecruitInfo.STATUS_OPENING);
 		recruitInfo.setCreateTime(new Date());
 
-		recruitInfo = recruitInfoRepository.save(recruitInfo);
+		recruitInfo = recruitInfoService.save(recruitInfo);
 		vo.setRecruitInfo(recruitInfo);
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
 
@@ -131,7 +125,7 @@ public class RecruitInfoController {
 		User user = (User) session.getAttribute("user");
 
 		Pageable p = PageRequest.of(page, pageSize, Sort.Direction.DESC, "createTime");
-		Page<RecruitInfo> list = recruitInfoRepository.findByUserId(user.getId(), p);
+		Page<RecruitInfo> list = recruitInfoService.findByUserId(user.getId(), p);
 
 		RecruitInfoVO vo = new RecruitInfoVO();
 		vo.setResCode(BaseVO.RES_CODE_SUCC);

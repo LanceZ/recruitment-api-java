@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gmail.magiccircuit.recruitment.dao.UserRepository;
 import com.gmail.magiccircuit.recruitment.model.User;
+import com.gmail.magiccircuit.recruitment.service.UserService;
 import com.gmail.magiccircuit.recruitment.view.BaseVO;
 import com.gmail.magiccircuit.recruitment.view.LoginInfoVO;
 
@@ -22,7 +22,7 @@ import me.chanjar.weixin.common.exception.WxErrorException;
 @RestController
 public class LoginController {
 	@Resource
-	UserRepository userRepository;
+	UserService userService;
 
 	@Resource
 	private WxMaService wxService;
@@ -39,11 +39,11 @@ public class LoginController {
 			WxMaJscode2SessionResult result = wxService.getUserService().getSessionInfo(code);
 			String openId = result.getOpenid();
 
-			User user = userRepository.findByOpenId(openId);
+			User user = userService.findByOpenId(openId);
 			if (user == null) {
 				user = new User();
 				user.setOpenId(openId);
-				user = userRepository.save(user);
+				user = userService.save(user);
 			}
 
 			session.setAttribute("user", user);

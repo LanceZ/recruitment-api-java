@@ -6,10 +6,12 @@ import java.util.Map;
 
 public class BaseVO implements Serializable {
 	public static final String RES_CODE_SUCC = "0";
-
-	public static final String RES_CODE_ERR_CHECK_USER_FAILED = "10";
 	
-	public static final String RES_CODE_ERR_SESSION_NULL = "11";
+	public static final String RES_CODE_ERR_FORBIDDEN = "10";
+
+	public static final String RES_CODE_ERR_CHECK_USER_FAILED = "11";
+	
+	public static final String RES_CODE_ERR_SESSION_NULL = "12";
 	
 	public static final String RES_CODE_ERR_CHECK_PARAMS_FAILED = "20";
 	

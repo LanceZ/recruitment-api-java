@@ -1,26 +1,22 @@
 package com.gmail.magiccircuit.recruitment.controller;
 
-import java.util.Optional;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gmail.magiccircuit.recruitment.common.BeanUtil;
-import com.gmail.magiccircuit.recruitment.dao.UserRepository;
 import com.gmail.magiccircuit.recruitment.model.User;
+import com.gmail.magiccircuit.recruitment.service.UserService;
 import com.gmail.magiccircuit.recruitment.view.BaseVO;
 import com.gmail.magiccircuit.recruitment.view.UserVO;
 
 @RestController
 public class UserController {
 	@Resource
-	UserRepository userRepository;
+	UserService userService;
 
 	@RequestMapping(path = "/api/user", method = RequestMethod.GET)
 	public UserVO getUser(HttpSession session) {
@@ -31,14 +27,13 @@ public class UserController {
 			return vo;
 		}
 		User user = (User) session.getAttribute("user");
-		Optional<User> u = userRepository.findById(user.getId());
+		User u = userService.findById(user.getId());
 		// 隐藏openId
-		user = u.orElse(null);
-		if (user != null) {
-			user.setOpenId("");
+		if (u != null) {
+			u.setOpenId("");
 		}
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
-		vo.setUser(user);
+		vo.setUser(u);
 
 		return vo;
 	}
@@ -52,13 +47,16 @@ public class UserController {
 			return vo;
 		}
 		User login = (User) session.getAttribute("user");
-		
-		User old = userRepository.getOne(login.getId());
-		BeanUtil.copyPropertiesIgnoreNull(user, old);
-		user = userRepository.saveAndFlush(old);
+		if (login.getId() != user.getId()) {
+			vo.setResCode(BaseVO.RES_CODE_ERR_CHECK_USER_FAILED);
+			vo.setResMsg("can not save other user");
+			return vo;
+		}
+
+		user = userService.save(user);
 
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
-		
+
 		User u = new User();
 		u.setId(user.getId());
 		vo.setUser(u);
