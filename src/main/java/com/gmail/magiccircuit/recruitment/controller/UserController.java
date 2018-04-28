@@ -47,16 +47,10 @@ public class UserController {
 			return vo;
 		}
 		User login = (User) session.getAttribute("user");
-		if (login.getId() != user.getId()) {
-			vo.setResCode(BaseVO.RES_CODE_ERR_CHECK_USER_FAILED);
-			vo.setResMsg("can not save other user");
-			return vo;
-		}
-
+		user.setId(login.getId());
 		user = userService.save(user);
 
 		vo.setResCode(BaseVO.RES_CODE_SUCC);
-
 		User u = new User();
 		u.setId(user.getId());
 		vo.setUser(u);
