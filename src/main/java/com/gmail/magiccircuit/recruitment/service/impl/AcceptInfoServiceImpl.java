@@ -30,12 +30,15 @@ public class AcceptInfoServiceImpl implements AcceptInfoService {
 	@Override
 	@Transactional
 	public AcceptInfo save(AcceptInfo acceptInfo) {
-		if (acceptInfo == null || acceptInfo.getId() == null) {
+		if (acceptInfo == null) {
 			return null;
 		}
 
-		AcceptInfo old = acceptInfoRepository.getOne(acceptInfo.getId());
-		BeanUtil.copyPropertiesIgnoreNull(acceptInfo, old);
+		AcceptInfo old = acceptInfo;
+		if (acceptInfo.getId() != null) {
+			old = acceptInfoRepository.getOne(acceptInfo.getId());
+			BeanUtil.copyPropertiesIgnoreNull(acceptInfo, old);
+		}
 
 		return acceptInfoRepository.saveAndFlush(old);
 	}

@@ -34,12 +34,15 @@ public class RecruitInfoServiceImpl implements com.gmail.magiccircuit.recruitmen
 	@Override
 	@Transactional
 	public RecruitInfo save(RecruitInfo recruitInfo) {
-		if (recruitInfo == null || recruitInfo.getId() == null) {
+		if (recruitInfo == null) {
 			return null;
 		}
 
-		RecruitInfo old = recruitInfoRepository.getOne(recruitInfo.getId());
-		BeanUtil.copyPropertiesIgnoreNull(recruitInfo, old);
+		RecruitInfo old = recruitInfo;
+		if (recruitInfo.getId() != null) {
+			old = recruitInfoRepository.getOne(recruitInfo.getId());
+			BeanUtil.copyPropertiesIgnoreNull(recruitInfo, old);
+		}
 
 		return recruitInfoRepository.saveAndFlush(old);
 	}

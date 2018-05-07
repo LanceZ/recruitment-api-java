@@ -20,12 +20,15 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public User save(User user) {
-		if (user == null || user.getId() == null) {
+		if (user == null) {
 			return null;
 		}
-
-		User old = userRepository.getOne(user.getId());
-		BeanUtil.copyPropertiesIgnoreNull(user, old);
+		
+		User old = user;
+		if (user.getId() != null) {
+			old = userRepository.getOne(user.getId());
+			BeanUtil.copyPropertiesIgnoreNull(user, old);
+		}
 
 		return userRepository.saveAndFlush(old);
 	}
